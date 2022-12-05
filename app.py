@@ -5,12 +5,21 @@ from flask_sqlalchemy import SQLAlchemy
 from forms import LoginForm, RegisterForm
 
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+
+import jsonify
+
+from google.cloud import storage
+import google.oauth2.credentials as cred
+import google.oauth2.service_account as service_account
+from oauth2client.service_account import ServiceAccountCredentials
+import os
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '!9m@S-dThyIlW[pHQbN^'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@localhost/auth'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@35.222.51.84/user_info'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -30,8 +39,19 @@ class User(db.Model):
 
 @app.route('/')
 def home():
+    image_list = []
+    # Note: Client.list_blobs requires at least package version 1.17.0.
+    credentials = service_account.Credentials.from_service_account_file('gcp-config.json')
+    client = storage.Client(credentials=credentials, project='My First Project')
+    
+    bucket = client.list_blobs('bucket-cc-project')
+    # blobs = storage_client.list_blobs(bucket_name)
 
-    return render_template('index.html')
+    # Note: The call returns a response only when the iterator is consumed.
+    for blob in bucket:
+        image_list.append("https://storage.cloud.google.com/bucket-cc-project/"+ blob.name+"?authuser=1")
+        print(blob.name)
+    return render_template('index.html', img = image_list)
 
 @app.route('/login/', methods = ['GET', 'POST'])
 def login():
@@ -93,7 +113,7 @@ def register():
         return redirect(url_for('login'))
     
     else:
-    
+
         return render_template('register.html', form = form)
 
 @app.route('/logout/')
@@ -102,6 +122,33 @@ def logout():
     session['logged_in'] = False
 
     return redirect(url_for('home'))
+
+@app.route('/upload/', methods=['POST'])
+def upload():
+    if request.method == 'POST':
+        image_list = []
+        projectpath = request.form['filepath']
+        # credentials_dict = {
+        #     'type': 'service_account',
+        #     'client_id': '114115601628653603065',
+        #     'client_email': '459278707338-compute@developer.gserviceaccount.com',
+        #     'private_key_id': '12f42019861c323ddad08c5076f100d082cdbeb1',
+        #     'private_key': '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCpgacHKVWHXln2\nhMFrR2Aaj5S0qREpusWHmAPeU+Cppel16uIEMnPwWWEmVeDmtvLiKpdQfEcxM82y\ni2x0HkP5bsIxMAtjAIzPZOnT6oxayhtS1DsoZROplDtW7SZnWesCTqXOrcHNyY7p\nPL8/Q5HbP9qLkm37wcC95Ax9Q6AmHixfry59eyBCWo6LAcuOkhKI/UAPdJEOduMW\n3DYGccXrD7knZ/MXKMjIU+O6Arn3CeGcstpbBx+VSXQhKhC2/sVXQWcnMViiwvdc\nVdpDSEYPUmKXlxOW/5SdnZKPSIqAko1R8SiSYmFPwYSjwZjpDz5f3w5M/yV2EPAj\nRB0ukeJfAgMBAAECggEAFniJm/luzTNE2dlfisk7hEnkfM6s58tKxF7ypFaaQeMs\nv+UTcVr+4631ow9fcTZvnGvpA1J2XZ9wdWrmRb59ZGO6eqrT15wLDrNiDCXb1W1V\nkfVwojpEEQcFltB5dtoEvZmPgYanWpCN0X2sHMboXxhn8HjI+8cDtii1PyXn5SWD\nnxU5XEU+QhRSB8x3T+WVe9B/E71AD5MwtL0dXG4hSssQd0XD4DBdGjcOSjtHcrjy\ncNwH5F7nlpKE3fLzoTLN4cA3XCCuS9yUOCvK9tL9ZxzX6+u7PxL9cB4iVOu9NEUQ\nc1rV2U/qkQ6QWQvGwvdyfRdnweSlAj7zVnp9L45YAQKBgQDUBKJcP4PnQXgRGx1C\nPQxC1JuOzRWwz674F9yIOSDGdzKxqjzKK60ApgT7L13/7WkaFVywDlCZXZ1jekZ/\nqkffal7ag5At72v4ty2iz83BvCdynWkOYSt0CzUSZzl1M0ph+bc2l80cPuYHsXjK\nxlnEkBgs3nVDUgnNvciMLpXpHwKBgQDMq2iBlEh5YIObQMqh8PdF/6NgC1GQMQNQ\nIBCW5BQ/TrnPUSPCcE8SyJv58o2Tb+wPX07V5bxNApJE+DhhyCn10hFtKNB6AcCZ\nJHMV5pLocnQKl4m+LHOU7gA8pf6FCVNYWzGox/ewh2Uci58WTiKxTz/m0LUNyHLu\n2Q2cBNSewQKBgQCdvjTuXXNOA6/JSlsihTkyH+z8+ilBO8P6YgZ6c8am4ticxwQj\nhwtYiCz8leliGMkx1uL3Oi9NbBFFihwZsB95YjLgcTI8ev3iNqeFkwaLNepDpEod\noL4rwIrj/lkJkfetnZVq0NaSRVnwL2Knu5veWzchawHj7I3OvX0QjziKEQKBgQCn\n/+8ppjETSLDeqIFsCmK+14cgmEncJQ9GHvvfD9q62IFW9pB20z9k+Lxnn7yskEth\nluccVpaJVBoCeQm24dnniQZ65uyxqWyRiETbbkeafBBafWc4bj51uiMBpXPVegEq\n3rhVhcb/5TOPCeCNK5f4mUenzBtB9A67lflA3wo0QQKBgB31DEFDFil38LDHClwN\nS1mUAl6T9GfdqRynHCeS7jq9oruFzVwiQj5LVKpZc+aa0+Gu2SulleH5sLSGekRA\n6OKydS+k/fs+WBIwPpC13knpr1GBzCcPKwgoruNQhZPyziFGVN6NgFGhL1TmoVJy\nQuX0df6ubIbhJIJjigwhCzcd\n-----END PRIVATE KEY-----\n',
+        # }
+        # credentials = ServiceAccountCredentials.from_json_keyfile_dict(
+        #     credentials_dict
+        # )
+        # credentials = ServiceAccountCredentials.from_json_keyfile_name('gcp-config.json')
+        credentials = service_account.Credentials.from_service_account_file('gcp-config.json')
+        client = storage.Client(credentials=credentials, project='My First Project')
+        
+        bucket = client.bucket('bucket-cc-project')
+        blob = bucket.blob(projectpath)
+        blob.upload_from_filename("/Users/ravirajpurohit/Downloads/" + projectpath)
+        bucket_1 = client.list_blobs('bucket-cc-project')
+        for blob in bucket_1:
+            image_list.append("https://storage.cloud.google.com/bucket-cc-project/"+ blob.name+"?authuser=1")
+        return render_template('index.html', img = image_list)
 
 if __name__ == '__main__':
     

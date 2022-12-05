@@ -14,6 +14,24 @@
 
 {% if session['logged_in'] %}
     <h5>Welcome, {{session['username'] }}</h5>
+	<br></br>
+	<br></br>
+	<form action="{{ url_for('upload') }}" method="post">
+		<input type="file", id="uploadImage" name = "filepath">
+		<input type="submit">
+	</form>
+
+	<br></br>
+	<br></br>
+	<div>
+	{% for result in img %}
+		<tr>
+			<td><img src={{result}} alt="Girl in a jacket" width="500" height="600"></td>
+			<br></br>
+		</tr>
+	{% endfor %}
+	</div>
+
 {% endif %}
 
 {% endblock body %}
