@@ -147,7 +147,7 @@ def upload():
         
         bucket = client.bucket('bucket-cc-project-1')
         blob = bucket.blob(projectpath)
-        blob.upload_from_filename("/Users/ravirajpurohit/Downloads/cc_project_pics" + projectpath)
+        blob.upload_from_filename("/Users/ravirajpurohit/Downloads/cc_project_pics/" + projectpath)
         bucket_1 = client.list_blobs('bucket-cc-project-1')
         for blob in bucket_1:
             image_list.append("https://storage.cloud.google.com/bucket-cc-project-1/"+ blob.name+"?authuser=1")
