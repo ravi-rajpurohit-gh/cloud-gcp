@@ -17,8 +17,8 @@ import os
 
 app = Flask(__name__)
 
-with app.app_context():
-    print (current_app.name)
+app_ctx = app.app_context()
+app_ctx.push()
 
 app.config['SECRET_KEY'] = '!9m@S-dThyIlW[pHQbN^'
 
