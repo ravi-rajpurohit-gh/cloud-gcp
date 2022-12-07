@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '!9m@S-dThyIlW[pHQbN^'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@35.222.51.84/user_info'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root@34.27.117.211/user_info'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -44,12 +44,12 @@ def home():
     credentials = service_account.Credentials.from_service_account_file('gcp-config.json')
     client = storage.Client(credentials=credentials, project='My First Project')
     
-    bucket = client.list_blobs('bucket-cc-project')
+    bucket = client.list_blobs('bucket-cc-project-1')
     # blobs = storage_client.list_blobs(bucket_name)
 
     # Note: The call returns a response only when the iterator is consumed.
     for blob in bucket:
-        image_list.append("https://storage.cloud.google.com/bucket-cc-project/"+ blob.name+"?authuser=1")
+        image_list.append("https://storage.cloud.google.com/bucket-cc-project-1/"+ blob.name+"?authuser=1")
         print(blob.name)
     return render_template('index.html', img = image_list)
 
@@ -142,12 +142,12 @@ def upload():
         credentials = service_account.Credentials.from_service_account_file('gcp-config.json')
         client = storage.Client(credentials=credentials, project='My First Project')
         
-        bucket = client.bucket('bucket-cc-project')
+        bucket = client.bucket('bucket-cc-project-1')
         blob = bucket.blob(projectpath)
         blob.upload_from_filename("/Users/ravirajpurohit/Downloads/" + projectpath)
-        bucket_1 = client.list_blobs('bucket-cc-project')
+        bucket_1 = client.list_blobs('bucket-cc-project-1')
         for blob in bucket_1:
-            image_list.append("https://storage.cloud.google.com/bucket-cc-project/"+ blob.name+"?authuser=1")
+            image_list.append("https://storage.cloud.google.com/bucket-cc-project-1/"+ blob.name+"?authuser=1")
         return render_template('index.html', img = image_list)
 
 if __name__ == '__main__':
