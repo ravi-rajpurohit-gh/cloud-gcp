@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, request, session, logging, url_for
+from flask import Flask, render_template, flash, redirect, request, session, logging, url_for,current_app
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -16,6 +16,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 
 app = Flask(__name__)
+
+with app.app_context():
+    print (current_app.name)
 
 app.config['SECRET_KEY'] = '!9m@S-dThyIlW[pHQbN^'
 
