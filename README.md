@@ -1,6 +1,6 @@
-# Flask-Login-Register
----
-- This project is simple implementation Login Registration flow in Flask-MySQL.
+# Digital-Notice-Board
+---------------------
+- This project is simple web portal for a digitally accessible notice board.
 
 ### Modules used
 ---

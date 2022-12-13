@@ -1,16 +1,12 @@
 {% extends "base.html" %}
-
 {% block body %}
 
 {% from "includes/formhelpers.html" import render_field %}
-
 <h4>
-    <strong>
-        Register
-    </strong>
+    <strong>Register for Digital Notice Board</strong>
 </h4>
-<hr>
 
+<hr>
 <form method="POST">
 
     {{ render_field(form.name, class="form-control") }}
@@ -21,9 +17,8 @@
 
     <button type="submit" class="btn btn-primary">Register</button>
 </form>
-
 <hr>
 
-<a href="/login">Login into existing account!</a>
+<a href="/login">Login to an existing account!</a>
 
 {% endblock body %}
