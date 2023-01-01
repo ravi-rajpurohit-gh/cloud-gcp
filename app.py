@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, request, session, logging, url_for,current_app
+from flask import Flask, render_template, flash, redirect, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from forms import LoginForm, RegisterForm
 from werkzeug.security import check_password_hash, generate_password_hash
