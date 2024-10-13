@@ -35,9 +35,3 @@
 - After setting flask application, To run application use below command
 - ```flask run --port=8080```
 - ```--port``` is optional
-
-# Author
----
-- Vedanti Ambulkar
-- Ravi Rajpurohit
-- Priyank Gupta
